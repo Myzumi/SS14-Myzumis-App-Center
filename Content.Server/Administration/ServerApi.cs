@@ -66,6 +66,8 @@ public sealed partial class ServerApi : IPostInjectInit
     {
         _sawmill = _logManager.GetSawmill("serverApi");
 
+        WebAPIInit(); // _MAC: Initialize the web API handlers, since this is a partial class, the method IPostInjectInit.PostInject cannot be used to initialize the web API handlers.
+
         // Get
         RegisterActorHandler(HttpMethod.Get, "/admin/info", InfoHandler);
         RegisterHandler(HttpMethod.Get, "/admin/game_rules", GetGameRules);
@@ -86,11 +88,14 @@ public sealed partial class ServerApi : IPostInjectInit
     public void Initialize()
     {
         _config.OnValueChanged(CCVars.AdminApiToken, UpdateToken, true);
+        _config.OnValueChanged(CCVars.WebApiToken, UpdateWebToken, true); // #_MAC: This is not possible to define in the other file due to the way the ServerApi is structured.
+
     }
 
     public void Shutdown()
     {
         _config.UnsubValueChanged(CCVars.AdminApiToken, UpdateToken);
+        _config.UnsubValueChanged(CCVars.WebApiToken, UpdateWebToken); // #_MAC: This is not possible to define in the other file due to the way the ServerApi is structured.
     }
 
     private void UpdateToken(string token)
